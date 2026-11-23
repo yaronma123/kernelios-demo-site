@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101917">
+  <title>Kernelios | מעבדת Linux</title>
+  <style>
+    :root { color-scheme: dark; font-family: Arial, sans-serif; background: #101917; color: #f4f7ed; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    .wrap { width: min(1100px, calc(100% - 40px)); margin: auto; }
+    header { border-bottom: 1px solid #30433a; }
+    nav { min-height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .brand { color: #a9f6a1; font: bold 1.2rem ui-monospace, monospace; }
+    a { color: #a9f6a1; text-underline-offset: 5px; }
+    a:focus-visible, button:focus-visible { outline: 2px solid #f4f7ed; outline-offset: 4px; }
+    .hero { display: grid; grid-template-columns: 1.15fr 1fr; gap: clamp(24px, 6vw, 74px); align-items: center; padding-block: clamp(44px, 9vw, 108px); }
+    h1 { margin: 0; font-size: clamp(3rem, 7vw, 6.5rem); line-height: 1.05; letter-spacing: -.045em; }
+    p { line-height: 1.65; }
+    .hero p { font-size: 1.2rem; max-width: 34ch; color: #c2d3c6; margin: 20px 0 28px; }
+    .cta { display: inline-block; padding: 14px 22px; background: #a9f6a1; color: #142519; border-radius: 9px; font-weight: bold; text-decoration: none; }
+    .terminal { border: 1px solid #455c4e; border-radius: 16px; background: #172621; overflow: hidden; box-shadow: 0 18px 55px #0004; }
+    .terminal-title { border-bottom: 1px solid #455c4e; padding: 14px 20px; color: #c2d3c6; font-family: ui-monospace, monospace; }
+    .terminal pre { padding: 12px 20px 24px; margin-bottom: 0; line-height: 1.8; overflow: auto; }
+    .terminal span { color: #a9f6a1; }
+    .practice { padding: clamp(22px, 5vw, 48px); border: 1px solid #455c4e; border-radius: 16px; background: #172621; scroll-margin-top: 20px; }
+    h2 { margin: 0; font-size: 2rem; }
+    fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+    legend { margin: 14px 0 18px; padding: 0; }
+    .choices { display: flex; flex-wrap: wrap; gap: 10px; }
+    button { border-radius: 8px; border: 1px solid #688574; padding: 10px 18px; color: #f4f7ed; background: #22392e; font: 1rem ui-monospace, monospace; cursor: pointer; }
+    button:hover { background: #335240; }
+    .feedback { min-height: 2em; margin: 15px 0 0; font-weight: bold; }
+    .correct { color: #a9f6a1; }
+    .incorrect { color: #ffc5a6; }
+    footer { padding-block: 30px; color: #c2d3c6; }
+    @media (max-width: 700px) { .hero { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="wrap" aria-label="ניווט ראשי">
+      <span class="brand" dir="ltr">Kernelios / Labs</span>
+      <a href="#practice">תרגול</a>
+    </nav>
+  </header>
+  <main class="wrap">
+    <section class="hero" aria-labelledby="title">
+      <div>
+        <h1 id="title">מעבדת <bdi>Linux</bdi></h1>
+        <p>מתחילים בטרמינל. ראו שלוש פקודות בסיסיות בפעולה ונסו שאלה קצרה.</p>
+        <a class="cta" href="#practice">התחילו לתרגל</a>
+      </div>
+      <div class="terminal" dir="ltr">
+        <div class="terminal-title">student@linux: ~</div>
+        <pre><code><span>$ pwd</span>
+/home/student
+
+<span>$ ls</span>
+Documents  Downloads  labs
+
+<span>$ whoami</span>
+student</code></pre>
+      </div>
+    </section>
+    <section id="practice" class="practice" aria-labelledby="practice-title">
+      <h2 id="practice-title">בדיקת ידע</h2>
+      <fieldset>
+        <legend>איזו פקודה מציגה את הנתיב של התיקייה הנוכחית?</legend>
+        <div class="choices">
+          <button type="button" dir="ltr">ls</button>
+          <button type="button" dir="ltr">pwd</button>
+          <button type="button" dir="ltr">whoami</button>
+        </div>
+      </fieldset>
+      <p id="feedback" class="feedback" role="status"></p>
+    </section>
+  </main>
+  <footer class="wrap">Kernelios · מעבדת לימוד</footer>
+  <script>
+    const explanations = {
+      ls: 'הפקודה ls מציגה את תוכן התיקייה. נסו שוב.',
+      pwd: 'נכון! הפקודה pwd מציגה את הנתיב של התיקייה הנוכחית.',
+      whoami: 'הפקודה whoami מציגה את שם המשתמש. נסו שוב.'
+    };
+    const feedback = document.querySelector('#feedback');
+
+    document.querySelectorAll('.choices button').forEach((button) => {
+      button.addEventListener('click', () => {
+        const command = button.textContent;
+        feedback.className = command === 'pwd' ? 'feedback correct' : 'feedback incorrect';
+        feedback.textContent = explanations[command];
+      });
+    });
+  </script>
+</body>
+</html>

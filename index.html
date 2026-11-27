@@ -1,538 +1,706 @@
 <!doctype html>
-<html lang="he" dir="rtl">
-<head>
+<html lang="he" dir="rtl"><head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#101315">
-<title>Kernelios Academy | Linux Essentials</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="עשרה חדרי לינוקס לתרגול בטרמינל מדומה | Ten Linux rooms with a simulated terminal">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<title>Linux Rooms</title>
 <style>
-:root{color-scheme:dark;font-family:Arial,sans-serif;background:#101315;color:#f0f3f2;--panel:#181e21;--line:#323d40;--muted:#b3c0c1;--lime:#cef677;--ink:#18230e;--mono:ui-monospace,Consolas,monospace}
+:root{color-scheme:dark;--base:#0b1017;--panel:#101822;--terminal:#080e15;--edge:#253344;--muted:#a0afbf;--text:#ecf2f8;--green:#68f1ae;--soft:#142d28;--gold:#ffc67d;--blue:#8acbff;--red:#ff9f9b;--mono:ui-monospace,"Cascadia Code","Liberation Mono",monospace}
 *{box-sizing:border-box}
-body{margin:0}
-a{color:inherit}
+body{margin:0;background:radial-gradient(ellipse at 70% 0%,#14232e 0%,transparent 45%),var(--base);color:var(--text);font:1rem/1.55 system-ui,Arial,sans-serif;min-height:100vh}
 button,input{font:inherit}
-button,.button{cursor:pointer}
-button:disabled{cursor:default;opacity:.55}
-:focus-visible{outline:2px solid var(--lime);outline-offset:4px}
+button{color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+button:disabled{cursor:default}
+header{border-bottom:1px solid var(--edge);background:#0d141ded}
+.top{min-height:67px;max-width:1280px;margin:auto;padding:10px 30px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand,.controls,.actions,.terminal-status{display:flex;align-items:center;gap:10px}
+.brand{font:700 1rem var(--mono);letter-spacing:.035em;white-space:nowrap}
+.brand-mark{width:36px;height:36px;border:1px solid #346b56;border-radius:9px;display:grid;place-items:center;background:var(--soft);color:var(--green);font:700 1.12rem var(--mono)}
+.button{border:1px solid #34465a;border-radius:8px;background:#172331;padding:7px 13px;font-size:.875rem;font-weight:650;min-height:36px}
+.button:hover{background:#213247;border-color:#607a95}
+.button.primary{background:var(--green);border-color:var(--green);color:#092119}
+.button.primary:hover{background:#a4ffd2}
+.button.quiet{background:transparent;color:var(--muted)}
+.button.quiet:hover{color:var(--text);background:#1b2b3c}
+main{max-width:1280px;margin:auto;padding:30px 30px 24px}
+.hero{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:24px;padding:24px 28px;border:1px solid #2c4350;border-radius:15px;background:radial-gradient(ellipse at 20% 120%,#16372e 0%,transparent 60%),repeating-linear-gradient(90deg,#7cffc406 0 1px,transparent 1px 36px),repeating-linear-gradient(0deg,#7cffc406 0 1px,transparent 1px 36px),#111e27}
+h1,h2,h3,p{margin:0}
+h1{font-size:clamp(1.95rem,4vw,3rem);line-height:1.12;letter-spacing:-.025em}
+.hero p{margin-top:8px;color:#b7c9d5}
+.progress{width:min(244px,37%);flex:none;padding:12px 15px;border:1px solid #324957;border-radius:10px;background:#0c161ddd}
+.progress-copy{display:flex;justify-content:space-between;align-items:center;gap:13px;color:#c6d3dd;font-size:.875rem}
+.progress-copy strong{font:700 1.1rem var(--mono);color:var(--green);white-space:nowrap}
+progress{display:block;margin-top:8px;width:100%;height:7px;border:0;border-radius:20px;overflow:hidden;background:#273745;accent-color:var(--green)}
+progress::-webkit-progress-bar{background:#273745}
+progress::-webkit-progress-value{background:var(--green);border-radius:20px}
+progress::-moz-progress-bar{background:var(--green);border-radius:20px}
+.layout{display:grid;grid-template-columns:264px minmax(0,1fr);gap:18px;align-items:start}
+.panel{border:1px solid var(--edge);border-radius:13px;background:var(--panel);min-width:0}
+.sidebar{padding:14px 10px 10px}
+.sidebar h2{font-size:1rem;margin:0 9px 11px}
+.room-list{list-style:none;padding:0;margin:0;display:grid;gap:4px}
+.room{width:100%;display:flex;gap:9px;align-items:center;text-align:start;padding:7px;border-radius:8px;border:1px solid transparent;background:transparent;min-height:45px}
+.room:hover:enabled{background:#1a2836}
+.room[aria-current="true"]{background:#142b2a;border-color:#346251}
+.room:disabled{color:#a0acbb}
+.room-num{width:31px;height:28px;display:grid;place-items:center;border-radius:5px;background:#1e2b3a;color:#b9c9d9;font:600 .8rem var(--mono);flex:none}
+.room[aria-current="true"] .room-num,.room.done .room-num{background:#21483a;color:var(--green)}
+.room-name{flex:1;font-size:.875rem;font-weight:650;line-height:1.22}
+.room-state{flex:none;color:var(--muted);font-size:.75rem}
+.room.done .room-state{color:var(--green);font-size:.95rem}
+.room[aria-current="true"]:not(.done) .room-state{color:var(--green)}
+.workbench{display:grid;gap:13px;min-width:0}
+.mission{padding:17px 19px}
+.mission-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}
+.mission h2{font-size:1.5rem;line-height:1.3}
+.level{font-size:.875rem;border:1px solid #386552;padding:2px 9px;border-radius:6px;background:#18332b;color:var(--green)}
+.level[data-level="1"]{background:#192c40;color:var(--blue);border-color:#385c7b}
+.level[data-level="2"]{background:#392a1d;color:var(--gold);border-color:#735433}
+.mission p{color:#c5d1dd}
+.mission p+p{margin-top:5px}
+.mission code,.hint code,.guide code{display:inline-block;direction:ltr;unicode-bidi:isolate;font:.9em var(--mono);background:#1b2a38;color:#b7e0ff;padding:1px 5px;border-radius:4px;max-width:100%;overflow-wrap:anywhere}
+.actions{margin-top:12px;flex-wrap:wrap}
+.hint{margin-top:10px;border-inline-start:3px solid var(--gold);background:#211e1c;padding:8px 11px;border-radius:5px;color:#f4d9b6}
 [hidden]{display:none!important}
-.wrap{width:min(1160px,calc(100% - 44px));margin-inline:auto}
-.site-header{border-bottom:1px solid var(--line);background:#101315}
-nav{min-height:72px;display:flex;gap:22px;justify-content:space-between;align-items:center}
-.brand{font:bold 1rem var(--mono);text-decoration:none;white-space:nowrap;display:flex;align-items:center;gap:9px;direction:ltr}
-.mark{background:var(--lime);padding:6px;color:var(--ink);border-radius:6px}
-.links{display:flex;gap:20px;flex-wrap:wrap}
-.links a{font-size:.95rem;text-decoration:none;color:var(--muted)}
-.links a:hover{color:var(--lime)}
-.hero{isolation:isolate;position:relative;border-bottom:1px solid var(--line);background:radial-gradient(ellipse at 17% 45%,#223221 0%,#141a18 36%,#101315 70%)}
-.hero::before{content:"";position:absolute;z-index:-1;inset:0;background-image:linear-gradient(#c5de9d0b 1px,transparent 1px),linear-gradient(90deg,#c5de9d0b 1px,transparent 1px);background-size:36px 36px;mask-image:linear-gradient(90deg,black,transparent 78%)}
-.hero-inner{min-height:440px;padding-block:56px;display:grid;grid-template-columns:1.04fr 1fr;gap:64px;align-items:center}
-.eyebrow{color:var(--lime);font:700 .92rem var(--mono);letter-spacing:.065em;margin:0 0 16px}
-h1,h2,h3,p{margin-top:0}
-h1{font-size:clamp(3.1rem,7.7vw,6.15rem);line-height:.96;letter-spacing:-.07em;margin-bottom:22px;text-align:right}
-h1 span{display:block;color:var(--lime)}
-h2{font-size:clamp(1.65rem,3.8vw,2.55rem);margin-bottom:8px;letter-spacing:-.025em}
-h3{margin-bottom:8px;font-size:1.25rem}
-p,li{line-height:1.65}
-.lead,.muted{color:var(--muted)}
-.lead{max-width:37ch;font-size:1.13rem;margin-bottom:24px}
-.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.button,button{border:1px solid #465453;border-radius:7px;background:#242d2e;color:#f0f3f2;padding:10px 15px;font-weight:bold;line-height:1.35;text-decoration:none}
-.button:hover,button:hover:not(:disabled){background:#34413b}
-.primary{background:var(--lime);border-color:var(--lime);color:var(--ink)}
-.primary:hover,button.primary:hover:not(:disabled){background:#e0ff9f}
-.terminal{background:#12181a;border:1px solid #45554d;border-radius:14px;overflow:hidden;box-shadow:0 20px 65px #0005;direction:ltr;text-align:left}
-.terminal-head{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #35463f;padding:13px 16px;background:#1c2523;color:#c0ceca;font:.86rem var(--mono)}
-.dots{display:flex;gap:5px}
-.dots i{width:7px;height:7px;border-radius:50%;background:#73857b}
-.dots i:last-child{background:var(--lime)}
-.terminal pre{margin:0;padding:16px;font:.88rem/1.75 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere}
-.prompt{color:var(--lime)}
-.content-section{padding-block:40px;scroll-margin-top:10px}
-.content-section+.content-section{border-top:1px solid var(--line)}
-.section-head{margin-bottom:18px}
-.section-head p{margin-bottom:0}
-.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
-.card,.panel,.topic{background:var(--panel);border:1px solid var(--line);border-radius:12px}
-.card{padding:17px 18px;display:flex;flex-direction:column;align-items:flex-start;min-width:0}
-.card p{color:var(--muted);flex:1;margin-bottom:15px}
-.badge{color:var(--lime);font:.83rem var(--mono);border:1px solid #4a5b39;border-radius:5px;padding:5px 7px;margin-bottom:13px}
-.completion{margin-bottom:8px;color:var(--lime)}
-.panel{padding:clamp(15px,3vw,24px);margin-top:14px}
-.topic-list{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}
-.topic{padding:0 15px}
-summary{cursor:pointer;padding:15px 0;font-weight:bold}
-.topic p{margin:0 0 10px;color:var(--muted)}
-.topic pre,pre.code{background:#101617;padding:13px;border-radius:7px;text-align:left;direction:ltr;margin:10px 0;font:.88rem/1.55 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere}
-.topic ul{margin:0 0 13px;padding-inline-start:20px}
-input[type=file]{max-width:100%;width:100%;padding:8px;border:1px solid #465453;border-radius:7px;background:#111718;margin:8px 0 10px;color:var(--muted)}
-input::file-selector-button{font:inherit;margin-inline-end:8px;padding:8px;color:var(--ink);border:0;border-radius:5px;background:var(--lime);cursor:pointer}
-input[type=text],input[type=number]{border:1px solid #526260;border-radius:7px;background:#111719;color:#f0f3f2;padding:10px 11px;max-width:100%}
-.small-number{width:6rem}
-label{display:block;font-weight:bold}
-fieldset{padding:0;border:0;margin:10px 0 14px;min-width:0}
-legend{margin-bottom:9px;color:var(--muted);padding:0}
-.options{display:grid;gap:8px}
-.option{display:flex;gap:10px;align-items:flex-start;font-weight:400;line-height:1.45;padding:10px;border:1px solid #405052;border-radius:7px}
-.option:has(input:checked){border-color:var(--lime);background:#263425}
-.option input{accent-color:var(--lime);margin-top:3px}
-.quiz-question{direction:ltr;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;font-size:1.15rem;margin-bottom:14px}
-.feedback:not(:empty){margin:12px 0 0}
-.feedback{color:var(--lime)}
-.feedback.error{color:#ffc6b6}
-.quiz-credit{font-size:.9rem;color:var(--muted);margin-bottom:0}
-.progress{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:center;color:var(--muted);margin-bottom:12px}
-#terminal-output{height:230px;overflow-y:auto;white-space:pre-wrap;overflow-wrap:anywhere}
-.command-line{display:flex;gap:8px;align-items:center;padding:10px;border-top:1px solid var(--line)}
-.command-line input{width:100%;font-family:var(--mono);min-width:0}
-.command-line label{color:var(--lime);font:700 1rem var(--mono)}
-.flag-form{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:14px}
-.flag-form input{font-family:var(--mono)}
-.site-footer{padding:20px 0 30px;color:var(--muted);border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
-@media(max-width:850px){.hero-inner{gap:30px}.cards{grid-template-columns:1fr 1fr}}
-@media(max-width:620px){.wrap{width:calc(100% - 28px)}nav{align-items:flex-start;flex-direction:column;gap:10px;padding-block:13px}.hero-inner,.cards,.topic-list{grid-template-columns:1fr}.hero-inner{padding-block:34px;gap:25px;min-height:0}h1{font-size:clamp(3rem,14vw,4.3rem)}.content-section{padding-block:28px}}
+.terminal{overflow:hidden;display:flex;flex-direction:column;background:var(--terminal);direction:ltr}
+.terminal-bar{display:flex;align-items:center;gap:12px;justify-content:space-between;background:#14202c;border-bottom:1px solid var(--edge);padding:6px 11px;min-height:43px}
+.terminal-title{font:650 .875rem var(--mono);color:#d9e9f7}
+.terminal-status{gap:7px;font:550 .8rem var(--mono);color:#bdccdb}
+.dot{width:7px;height:7px;border-radius:100%;background:var(--green);box-shadow:0 0 12px #68f1ae85}
+.terminal-bar .button{min-height:29px;padding:3px 8px}
+.transcript{height:clamp(245px,36vh,400px);padding:13px 15px;overflow:auto;scrollbar-color:#384e63 var(--terminal);overscroll-behavior:contain}
+.line{margin:0 0 5px;font:400 .875rem/1.55 var(--mono);white-space:pre-wrap;overflow-wrap:anywhere;color:#c9d8e7}
+.line[dir="rtl"]{text-align:right;font-family:system-ui,Arial,sans-serif}
+.line[data-tone="cmd"]{color:#f3f7ff}
+.line[data-tone="info"]{color:var(--blue)}
+.line[data-tone="success"]{color:var(--green)}
+.line[data-tone="error"]{color:var(--red)}
+.line[data-tone="hint"]{color:var(--gold)}
+.prompt-form{display:flex;align-items:center;flex-wrap:wrap;gap:7px;padding:10px 13px;border-top:1px solid #203040;background:#0c141d}
+.prompt-text{color:var(--green);font:650 .875rem var(--mono);overflow-wrap:anywhere}
+.prompt-form input{flex:1;min-width:95px;width:0;background:transparent;border:0;color:#eff6ff;padding:6px 4px;border-radius:4px;font:.875rem var(--mono)}
+.prompt-form input::placeholder{color:#8e9dad}
+.below{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.below p{color:var(--muted);font-size:.875rem}
+.guide{width:min(580px,calc(100% - 28px));max-height:88vh;overflow:auto;color:var(--text);background:#14202c;border:1px solid #3a5062;border-radius:13px;padding:21px}
+.guide::backdrop{background:#050910c9}
+.guide h2{margin-bottom:9px}
+.guide p{margin-bottom:10px;color:#c7d5e0}
+.guide ul{margin:0 0 15px;padding-inline-start:23px}
+.guide li{padding:3px 0}
+@media(max-width:760px){
+ .top,main{padding-inline:16px}
+ main{padding-top:18px}
+ .hero{padding:17px;gap:13px;margin-bottom:15px}
+ .layout{grid-template-columns:minmax(0,1fr)}
+ .workbench{grid-row:1}
+ .room-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:450px){
+ .top,main{padding-inline:11px}
+ .hero{align-items:stretch;flex-direction:column}
+ .progress{width:100%}
+ .room-list{grid-template-columns:minmax(0,1fr)}
+ .controls{gap:5px}
+ .button{padding-inline:8px}
+ .mission{padding:13px}
+ .brand{gap:6px;font-size:.875rem}
+ .brand-mark{width:28px;height:29px}
+}
 </style>
-</head>
-<body>
-<header class="site-header">
-<nav class="wrap" aria-label="ניווט ראשי">
-<a class="brand" href="#top"><span class="mark" aria-hidden="true">&gt;_</span> KERNELIOS ACADEMY</a>
-<div class="links"><a href="#topics">חומר לימודי</a><a href="#labs">חדרי תרגול</a><a href="#simulator">סימולטור LPI</a></div>
-</nav>
+</head><body>
+<header>
+ <div class="top">
+  <div class="brand" dir="ltr"><span class="brand-mark" aria-hidden="true">&gt;_</span>Linux Rooms</div>
+  <div class="controls">
+   <button class="button quiet" id="offline" type="button"></button>
+   <button class="button quiet" id="guide-open" type="button"></button>
+   <button class="button" id="language" type="button" dir="ltr"></button>
+  </div>
+ </div>
 </header>
-<main id="top">
-<section class="hero">
-<div class="wrap hero-inner">
-<div>
-<p class="eyebrow" dir="ltr" style="text-align:right">LPI 010-160 · FOUNDATIONS</p>
-<h1 dir="ltr">Linux <span>Essentials</span></h1>
-<p class="lead">לומדים את יסודות Linux, פותרים משימות בטרמינל ומתכוננים למבחן עם סימולטור.</p>
-<div class="row"><a class="button primary" href="#simulator">פתחו את הסימולטור</a><a class="button" href="#labs">לחדרי התרגול</a></div>
-</div>
-<div class="terminal" aria-label="דוגמה לפקודות Linux">
-<div class="terminal-head"><span>student@kernelios: ~/labs</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
-<pre><span class="prompt">student@kernelios:~$</span> pwd
-/home/student
-
-<span class="prompt">student@kernelios:~$</span> ls labs
-archives/  logs/  permissions/
-
-<span class="prompt">student@kernelios:~$</span> grep ERROR labs/logs/service.log
-09:14 ERROR backup target unavailable
-
-<span class="prompt">student@kernelios:~$</span> <span class="prompt">▌</span></pre>
-</div>
-</div>
-</section>
-<div class="wrap">
-<section class="content-section" id="topics">
-<div class="section-head"><h2>חומר לימודי לפי נושאים</h2><p class="muted">פתחו נושא להסבר, דוגמה בטרמינל ומשימה קצרה.</p></div>
-<div class="topic-list">
-<details class="topic"><summary>הפצות Linux וקוד פתוח</summary><p>הפצה משלבת את ליבת Linux עם כלי מערכת, חבילות ומאגרי תוכנה. Ubuntu ו־Debian משתמשות ב־APT. הפצות ממשפחת Fedora משתמשות ב־DNF.</p><pre>cat /etc/os-release
-uname -r
-apt search tree</pre><ul><li>זהו את ההפצה, את גרסת הליבה ואת שם החבילה שמציגה עץ תיקיות.</li><li>הסבירו למה מנהל חבילות מתקין גם תלויות.</li></ul></details>
-<details class="topic"><summary>טרמינל, קבצים ותיקיות</summary><p>נתיב מוחלט מתחיל ב־<code>/</code>. נתיב יחסי מחושב מהתיקייה הנוכחית. אפשר לעיין באפשרויות של פקודה דרך <code>man</code>.</p><pre>pwd
-ls -la
-mkdir -p ~/practice/reports
-find ~/practice -type d
-man ls</pre><ul><li>צרו את התיקייה והציגו אותה פעם בנתיב מוחלט ופעם בנתיב יחסי.</li></ul></details>
-<details class="topic"><summary>עיבוד טקסט, ארכיונים ו־Bash</summary><p>התו <code>|</code> מעביר את הפלט של פקודה לפקודה הבאה. השתמשו בו לסינון ולספירה, וב־<code>tar</code> כדי לארוז קבצים.</p><pre>cut -d: -f1 /etc/passwd | sort | head -n 5
-tar -czf practice.tar.gz -C "$HOME" practice
-tar -tzf practice.tar.gz
-for file in "$HOME"/practice/*; do
-  printf '%s\n' "$file"
-done</pre><ul><li>צרו את תיקיית התרגול מהנושא הקודם והציגו את תוכן הארכיון בלי לחלץ אותו.</li></ul></details>
-<details class="topic"><summary>חומרה, תהליכים ולוגים</summary><p>אפשר לבדוק ניצול משאבים דרך כלי מערכת, ולהציג אירועים ביומן של מערכות שמפעילות systemd.</p><pre>lsblk
-free -h
-ps -ef | head
-journalctl --since "10 minutes ago" -p warning</pre><ul><li>זהו את הדיסק הראשי ואת כמות הזיכרון הזמין. בדקו אילו אירועים מוצגים ומה מקורם.</li></ul></details>
-<details class="topic"><summary>משתמשים, קבוצות והרשאות</summary><p>הרשאות מתחלקות לבעלים, לקבוצה ולאחרים. הערכים 4, 2 ו־1 מייצגים קריאה, כתיבה והרצה.</p><pre>id
-touch report.txt
-chmod 640 report.txt
-ls -l report.txt</pre><ul><li>הסבירו מי יכול לקרוא ומי יכול לערוך את <code>report.txt</code>.</li></ul></details>
-<details class="topic"><summary>כתובות IP, שער ברירת מחדל ו־DNS</summary><p>כתובת IP מזהה ממשק ברשת, שער ברירת מחדל מעביר תעבורה לרשת אחרת ו־DNS מתרגם שמות לכתובות.</p><pre>ip -br address
-ip route
-getent hosts example.com</pre><ul><li>זהו את כתובת הממשק הפעיל ואת שער ברירת המחדל, ואז בדקו אם פתרון שמות עובד.</li></ul></details>
-</div>
-</section>
-<section class="content-section" id="labs">
-<div class="section-head"><h2>חדרי תרגול</h2><p class="muted">עבדו בטרמינל המדומה, עקבו אחר הרמזים והגישו את הדגל של כל חדר.</p></div>
-<div class="cards">
-<article class="card"><span class="badge">FILES</span><h3>ארכיון שנשכח</h3><p>בדקו את תיקיית המסירה ואת הארכיון כדי למצוא את קובץ הדגל.</p><small class="completion" id="archive-done" hidden>החדר הושלם</small><button type="button" data-room="archive">כניסה לחדר</button></article>
-<article class="card"><span class="badge">LOGS</span><h3>כשל בגיבוי</h3><p>סננו לוגים, מצאו את שורת השגיאה וזהו את הדגל של האירוע.</p><small class="completion" id="logs-done" hidden>החדר הושלם</small><button type="button" data-room="logs">כניסה לחדר</button></article>
-<article class="card"><span class="badge">PERMISSIONS</span><h3>הרשאות לצוות</h3><p>התאימו את הרשאות הדוח כדי שהצוות יוכל לקרוא אותו.</p><small class="completion" id="permissions-done" hidden>החדר הושלם</small><button type="button" data-room="permissions">כניסה לחדר</button></article>
-</div>
-<div id="room-panel" class="panel" hidden>
-<div class="progress"><h3 id="room-title" tabindex="-1"></h3><button type="button" id="room-reset">איפוס החדר</button></div>
-<p id="room-description"></p>
-<div class="terminal">
-<div id="room-terminal-title" class="terminal-head">student@lab</div>
-<pre id="terminal-output" role="log" aria-label="פלט טרמינל"></pre>
-<form class="command-line" id="command-form"><label for="command" aria-label="פקודה">$</label><input id="command" type="text" dir="ltr" spellcheck="false" autocomplete="off" maxlength="160" required><button type="submit">הרצה</button></form>
-</div>
-<form class="flag-form" id="flag-form"><label for="flag">הדגל שמצאתם</label><input id="flag" dir="ltr" type="text" spellcheck="false" autocomplete="off" placeholder="FLAG{...}" maxlength="64" required><button type="submit" class="primary">בדיקה</button></form>
-<p id="room-feedback" class="feedback" role="status"></p>
-</div>
-</section>
-<section class="content-section" id="simulator">
-<div class="section-head"><h2>סימולטור <bdi>LPI 010-160</bdi></h2><p class="muted">תרגלו את שאלות הסימולטור במצב למידה, במבחן מדומה או לפי מספר שאלה.</p></div>
-<div class="panel">
-<label for="bank-file">בחרו את קובץ הסימולטור</label>
-<input type="file" id="bank-file" aria-describedby="import-note">
-<p class="muted" id="import-note">בחרו את קובץ ה־Bash בשם <bdi>simulator</bdi>. האתר קורא אותו מקומית בדפדפן.</p>
-<p class="feedback" id="bank-status" role="status"></p>
-<div id="quiz-menu" hidden>
-<div class="row">
-<button type="button" class="primary" id="exam-start">מבחן מדומה</button>
-<button type="button" id="study-start">מצב למידה</button>
-<form class="row" id="lookup-form"><label for="question-number">שאלה מספר</label><input class="small-number" id="question-number" type="number" min="1" value="1" required><button type="submit">פתיחה</button></form>
-</div>
-<p class="quiz-credit">מבוסס על סימולטור ה־Bash של Andrey Pautov.</p>
-</div>
-<div class="panel" id="quiz-panel" hidden>
-<div class="progress"><strong id="quiz-progress" tabindex="-1"></strong><span id="quiz-clock" dir="ltr"></span><button type="button" id="quiz-exit">יציאה מהסבב</button></div>
-<div id="question-area">
-<h3 id="question-text" class="quiz-question"></h3>
-<form id="quiz-form">
-<fieldset><legend id="selection-note"></legend><div class="options" id="quiz-options"></div></fieldset>
-<div class="row"><button type="submit" class="primary" id="submit-answer">אישור תשובה</button><button type="button" id="next-question" hidden>לשאלה הבאה</button></div>
-</form>
-<p id="quiz-feedback" class="feedback" role="status"></p>
-</div>
-<div id="quiz-result" hidden></div>
-</div>
-</div>
-</section>
-</div>
+<main>
+ <section class="hero" aria-labelledby="page-title">
+  <div><h1 id="page-title"></h1><p id="tagline"></p></div>
+  <div class="progress">
+   <div class="progress-copy"><span id="progress-label"></span><strong id="score" dir="ltr"></strong></div>
+   <progress id="progress" max="10" value="0" aria-labelledby="progress-label"></progress>
+  </div>
+ </section>
+ <div class="layout">
+  <nav class="panel sidebar" aria-labelledby="map-title"><h2 id="map-title"></h2><ol id="map" class="room-list"></ol></nav>
+  <div class="workbench">
+   <section class="panel mission" aria-labelledby="room-title">
+    <div class="mission-top"><h2 id="room-title" tabindex="-1"></h2><span class="level" id="level"></span></div>
+    <p id="brief"></p><p id="objective"></p>
+    <div class="actions">
+     <button class="button" id="hint-button" type="button" aria-controls="hint"></button>
+     <button class="button primary" id="next" type="button" hidden=""></button>
+    </div>
+    <p id="hint" class="hint" aria-live="polite" hidden=""></p>
+   </section>
+   <section class="panel terminal" aria-labelledby="terminal-title">
+    <div class="terminal-bar"><span class="terminal-status"><span class="dot" aria-hidden="true"></span><span id="terminal-title" class="terminal-title"></span></span><button class="button quiet" id="clear" type="button" dir="auto"></button></div>
+    <div id="transcript" class="transcript" role="log" aria-live="polite" tabindex="0" aria-labelledby="terminal-title"></div>
+    <form id="prompt-form" class="prompt-form">
+     <label for="command" id="prompt" class="prompt-text"></label>
+     <input id="command" type="text" spellcheck="false" autocapitalize="off" autocomplete="off" maxlength="320">
+     <button class="button primary" id="run" type="submit" dir="auto"></button>
+    </form>
+   </section>
+   <div class="below"><p id="storage-status" role="status"></p></div>
+  </div>
+ </div>
 </main>
-<footer class="wrap site-footer"><span>Kernelios Academy</span><a href="https://learning.lpi.org/en/learning-materials/010-160/">חומר רשמי של LPI לגרסה 1.6</a></footer>
-<script id="portal-script">
+<dialog id="guide" class="guide" aria-labelledby="guide-title">
+ <h2 id="guide-title"></h2><p id="guide-text"></p><ul id="guide-list"></ul>
+ <form method="dialog"><button class="button primary" id="guide-close" type="button"></button></form>
+</dialog>
+<script>
 'use strict';
-const byId = (id) => document.getElementById(id);
+// Room copy uses backticks as delimiters for inline command names.
+const rooms = [
+ {title:['ניווט ראשון','First Steps'],level:0,
+  brief:['זה עתה התחברת לשרת התרגול. פתק קבלת הפנים מחכה בתיקיית `briefing`.','You just connected to the practice host. A welcome note is waiting in the `briefing` directory.'],
+  task:['נווט לתיקייה, קרא את הפתק והגש את הקוד באמצעות `submit CODE`.','Enter the directory, read the note, then submit its code with `submit CODE`.'],
+  hints:[['בדוק איפה אתה עם `pwd`, והצג את התוכן עם `ls`.','Check your current directory with `pwd`, then list its contents with `ls`.'],['נסה `cd briefing` ואז `cat welcome.txt`. הגש את הערך שאחרי `CODE=`.','Try `cd briefing` then `cat welcome.txt`. Submit the value after `CODE=`.']],
+  files:{'briefing/welcome.txt':'Welcome to Linux Rooms.\nCODE=ORBIT-17','readme.txt':'The welcome note is in briefing.'},answer:['orbit-17']},
+ {title:['תיקיות וקבצים נסתרים','Hidden Files'],level:0,
+  brief:['הצוות שמר את קוד המלאי בקובץ נסתר בתוך `archive`.','The team stored the inventory code in a hidden file inside `archive`.'],
+  task:['אתר את הקובץ והגש את הקוד שבו.','Find the hidden file and submit its code.'],
+  hints:[['בלינוקס, שם שמתחיל בנקודה מוסתר ברשימה רגילה. נסה `ls -a archive`.','Linux hides names beginning with a dot from ordinary listings. Try `ls -a archive`.'],['פתח את `archive/.inventory` עם `cat`.','Read `archive/.inventory` with `cat`.']],
+  files:{'archive/notes.txt':'Quarterly inventory notes.','archive/.inventory':'inventory status: verified\nCODE=CEDAR-42','readme.txt':'Inventory moved to archive.'},answer:['cedar-42']},
+ {title:['חיפוש בקבצים','Search the Logs'],level:0,
+  brief:['בדיקת גיבוי נכשלה. הפרטים מופיעים באחת משורות היומן `backup.log`.','A backup check failed. The details appear on one line of `backup.log`.'],
+  task:['מצא את השורה שמכילה `ERROR` והגש את הערך של `job`.','Find the line marked `ERROR` and submit its `job` value.'],
+  hints:[['הפקודה `grep` מחזירה שורות שמכילות את הטקסט שחיפשת.','The `grep` command returns lines containing the text you search for.'],['נסה `grep ERROR backup.log`.','Try `grep ERROR backup.log`.']],
+  files:{'backup.log':'08:00 INFO job=delta result=started\n08:02 INFO job=delta result=ok\n08:03 WARN job=mesa result=retry\n08:04 ERROR job=birch result=checksum_mismatch\n08:09 INFO job=mesa result=ok\n08:12 INFO job=maple result=ok'},answer:['birch']},
+ {title:['צינורות וספירה','Pipes and Counting'],level:1,
+  brief:['כל שורה ב־`queue.txt` מציינת בקשה שנכנסה לאחד התורים.','Each line in `queue.txt` records one request sent to a queue.'],
+  task:['מצא את התור השכיח ביותר והגש את שמו ואת מספר ההופעות, למשל `submit alpha 4`.','Find the busiest queue and submit its name and count, for example `submit alpha 4`.'],
+  hints:[['התו `|` מעביר פלט בין פקודות. `uniq -c` סופרת שורות זהות סמוכות, לכן כדאי למיין תחילה.','The `|` character passes output between commands. `uniq -c` counts adjacent identical lines, so sort first.'],['נסה `sort queue.txt | uniq -c | sort -nr`.','Try `sort queue.txt | uniq -c | sort -nr`.']],
+  files:{'queue.txt':'amber\nblue\nember\nblue\namber\nblue\nember\nblue\namber\nblue\nember\nblue'},answer:['blue','6']},
+ {title:['הרשאות קבצים','File Permissions'],level:1,
+  brief:['רק לבעלים של `report.txt` מותר לקרוא ולכתוב בו. בדוק את ההרשאות ותקן אותן.','Only the owner of `report.txt` should be able to read or write it. Inspect and correct its permissions.'],
+  task:['עדכן את הרשאות הקובץ והגש את הערך המספרי בן שלוש הספרות שקבעת.','Set the file permissions, then submit the three-digit mode you applied.'],
+  hints:[['נסה `ls -l report.txt`. לקריאה יש ערך 4, לכתיבה 2. סדר הספרות הוא בעלים, קבוצה, אחרים.','Try `ls -l report.txt`. Read is 4 and write is 2. The digits represent owner, group, and others.'],['הפקודה `chmod 600 report.txt` מעניקה קריאה וכתיבה לבעלים בלבד.','The command `chmod 600 report.txt` grants read and write access to the owner only.']],
+  files:{'report.txt':['Training report — internal use only.','644']},answer:['600'],check:s=>s.files.get('/home/student/report.txt').mode==='600'},
+ {title:['תהליכים פעילים','Running Processes'],level:1,
+  brief:['אפליקציית הניטור הציפה התראה על צריכת מעבד. הטבלה המדומה כוללת תהליכים פעילים.','Monitoring flagged high CPU use. The simulated process table shows what is running.'],
+  task:['זהה את התהליך עם `%CPU` הגבוה ביותר והגש את ה־`PID` שלו.','Identify the process with the highest `%CPU` and submit its `PID`.'],
+  hints:[['`ps aux` מציגה תהליכים ואת השימוש שלהם במעבד.','`ps aux` lists processes and their CPU usage.'],['אפשר למיין לפי שימוש במעבד באמצעות `ps aux --sort=-%cpu`.','You can sort by CPU usage with `ps aux --sort=-%cpu`.']],
+  answer:['1842']},
+ {title:['שירותי מערכת','System Services'],level:1,
+  brief:['השירות `backup.service` נעצר. בדוק את מצבו והשווה אותו ליומן של השירות.','The `backup.service` unit stopped. Check its status and read its journal.'],
+  task:['הגש את הערך של `reason` שמופיע בשורת הכשל ביומן.','Submit the `reason` value on the failure line in the journal.'],
+  hints:[['נסה `systemctl status backup.service` כדי לבדוק את מצב השירות.','Try `systemctl status backup.service` to check the service status.'],['קרא את היומן באמצעות `journalctl -u backup.service` וחפש את השורה עם `ERROR`.','Read the journal with `journalctl -u backup.service` and look for the `ERROR` line.']],
+  answer:['quota_exceeded']},
+ {title:['רשת מקומית','Local Network'],level:2,
+  brief:['שירות בריאות מקומי מאזין על כתובת loopback במכונת התרגול.','A local health-check service is listening on the practice host’s loopback address.'],
+  task:['מצא את הפורט שבו מאזין `healthd` והגש את מספר הפורט.','Find the port that `healthd` is listening on and submit the port number.'],
+  hints:[['`ip addr` מציגה כתובות מקומיות. כתובת ה־loopback של IPv4 היא `127.0.0.1`.','`ip addr` shows local addresses. The IPv4 loopback address is `127.0.0.1`.'],['נסה `ss -lntp | grep healthd`. מספר הפורט מגיע אחרי הנקודתיים בכתובת המקומית.','Try `ss -lntp | grep healthd`. The port follows the colon in the local address.']],
+  answer:['9093']},
+ {title:['בדיקת שלמות','File Integrity'],level:2,
+  brief:['בתיקיית `evidence` שמורים שלושה קובצי תצורה וחתימות SHA-256 מהגרסה המאושרת.','The `evidence` directory contains three configuration files and SHA-256 checksums from the approved version.'],
+  task:['בדוק את הקבצים מול הרשימה והגש את שם הקובץ ששונה, כולל הסיומת.','Check the files against the checksum list and submit the changed filename, including its extension.'],
+  hints:[['נווט אל `evidence` עם `cd evidence` ובדוק מה קיים שם.','Use `cd evidence` to enter the directory and check its contents.'],['השתמש ב־`sha256sum -c SHA256SUMS`. רשומה עם `FAILED` לא תואמת לחתימה המאושרת.','Use `sha256sum -c SHA256SUMS`. An entry marked `FAILED` differs from the approved checksum.']],
+  files:{'evidence/api.conf':'port=8080','evidence/worker.conf':'workers=12','evidence/health.conf':'interval=30'},answer:['worker.conf']},
+ {title:['חקירת תקלה משולבת','Incident Triage'],level:2,
+  brief:['מערכת הניטור דיווחה על כשל רצוף. `alerts.log` מכיל מזהה בדיקה, `routes.tsv` ממפה בדיקות לשירותים ויומן השירות כולל את סיבת הכשל.','Monitoring reported a sustained failure. `alerts.log` contains a check ID, `routes.tsv` maps checks to services, and the service journal records the cause.'],
+  task:['הצלב את שלושת המקורות והגש את שם השירות המלא ואת הערך של `reason` באותה פקודה. התבנית היא `submit SERVICE REASON`.','Correlate the three sources and submit the full unit name and its `reason` value together. Use `submit SERVICE REASON`.'],
+  hints:[['חפש `CRITICAL` ב־`alerts.log`, ואז חפש את מזהה הבדיקה שקיבלת ב־`routes.tsv`.','Find `CRITICAL` in `alerts.log`, then look up its check ID in `routes.tsv`.'],['העבר את שם השירות שמצאת אל `journalctl -u`, וסנן את הפלט עם `| grep ERROR`.','Pass the mapped service name to `journalctl -u`, then filter its output with `| grep ERROR`.']],
+  files:{'alerts.log':'09:00 INFO check=CH-71 status=ok\n09:01 WARN check=CH-10 status=slow\n09:04 CRITICAL check=CH-27 status=failed\n09:06 INFO check=CH-71 status=ok','routes.tsv':'check\tunit\nCH-10\tapi.service\nCH-71\tbackup.service\nCH-27\tcollector.service'},
+  answer:['collector.service','schema_mismatch']}
+];
 
-const rooms = {
-  archive: {
-    title: 'ארכיון שנשכח',
-    description: 'דוח הועבר בארכיון. הציגו את תוכנו וקראו את flag.txt מתוכו, בלי לחלץ את כל הארכיון.',
-    flag: 'FLAG{ARCHIVE_FOUND}',
-    commands: {
-      'pwd': '/home/student/delivery',
-      'ls': 'delivery.tar.gz  README.txt',
-      'cat README.txt': 'Inspect the archive with tar -tzf. Use tar -xOzf to read a named member to stdout.',
-      'tar -tzf delivery.tar.gz': 'reports/\nreports/summary.txt\nreports/flag.txt',
-      'tar -xOzf delivery.tar.gz reports/flag.txt': 'FLAG{ARCHIVE_FOUND}',
-      'tar -xzOf delivery.tar.gz reports/flag.txt': 'FLAG{ARCHIVE_FOUND}'
-    }
-  },
-  logs: {
-    title: 'כשל בגיבוי',
-    description: 'עברו על service.log ומצאו את הדגל בשורת השגיאה של משימת הגיבוי.',
-    flag: 'FLAG{BACKUP_TARGET}',
-    commands: {
-      'pwd': '/home/student/logs',
-      'ls': 'service.log',
-      'cat service.log': '09:10 INFO service ready\n09:12 INFO backup started\n09:14 ERROR target unavailable FLAG{BACKUP_TARGET}\n09:15 INFO backup stopped',
-      'grep ERROR service.log': '09:14 ERROR target unavailable FLAG{BACKUP_TARGET}',
-      "grep 'ERROR' service.log": '09:14 ERROR target unavailable FLAG{BACKUP_TARGET}',
-      'grep "ERROR" service.log': '09:14 ERROR target unavailable FLAG{BACKUP_TARGET}',
-      'wc -l service.log': '4 service.log'
-    }
-  },
-  permissions: {
-    title: 'הרשאות לצוות',
-    description: 'אפשרו לבעלים לקרוא ולכתוב, לחברי הקבוצה לקרוא בלבד וליתר המשתמשים בלי גישה. לאחר השינוי קראו את הדוח.',
-    flag: 'FLAG{GROUP_READ}',
-    commands: {
-      'pwd': '/home/student/reports',
-      'ls': 'report.txt',
-      'id': 'uid=1001(student) gid=1001(student) groups=1001(student),1004(analysts)'
-    }
-  }
+const home = '/home/student';
+const key = 'linux-rooms-progress-v1';
+const copy = {
+ title:['חדרי לינוקס','Linux Rooms'],
+ tagline:['עשרה חדרים. בכל חדר, משימה אחת בטרמינל.','Ten rooms. One terminal challenge in each.'],
+ rooms:['מפת החדרים','Room map'], progress:['חדרים שהושלמו','Rooms completed'],
+ current:['פעיל','Active'], locked:['נעול','Locked'], done:['הושלם','Complete'],
+ levels:[['בסיסי','Beginner'],['בינוני','Intermediate'],['מתקדם','Advanced']],
+ guide:['איך משחקים','How to play'], close:['סגור','Close'], offline:['הורד HTML','Download HTML'],
+ guideText:['הטרמינל מדמה סביבת לינוקס עם קבצים ויומנים לדוגמה. המשימות נפתחות לפי הסדר.','The terminal simulates a Linux environment with sample files and logs. Rooms unlock in order.'],
+ guideItems:[
+  ['הקלד פקודה ולחץ Enter. הפקודה `help` מציגה את הפקודות הזמינות.','Type a command and press Enter. Run `help` to see available commands.'],
+  ['הגש תשובה בעזרת `submit`. בחלק מהחדרים צריך גם לבצע שינוי במערכת המדומה.','Use `submit` to submit an answer. Some rooms also require a change in the simulated system.'],
+  ['חץ למעלה או למטה משחזר פקודות קודמות. אפשר לפתוח רמז מהמשימה או להקליד `hint`.','Use Up or Down to recall commands. Open a hint from the mission or type `hint`.'],
+  ['אפשר לחזור לכל חדר פתוח. ההתקדמות והשפה נשמרות באותו דפדפן כשהאחסון זמין.','Revisit any unlocked room. Progress and language are saved in the same browser when storage is available.']
+ ],
+ terminal:['טרמינל מדומה','Simulated terminal'], command:['פקודה','Command'],
+ clear:['נקה','Clear'], run:['הפעל','Run'], next:['לחדר הבא','Next room'],
+ hint:['הצג רמז','Show hint'], hintNext:['הצג רמז נוסף','Show another hint'], hintHide:['הסתר רמז','Hide hint'],
+ ready:['הטרמינל מוכן. נסה להקליד help או התחל במשימה.','Terminal ready. Type help or start the mission.'],
+ invalid:['התשובה שגויה. כדאי לבדוק שוב את הפלט או לפתוח רמז.','Incorrect answer. Recheck the output or open a hint.'],
+ pending:['התשובה נכונה. נותר לעדכן את ההרשאות בקובץ המדומה.','Correct answer. Apply the required permissions to the simulated file first.'],
+ success:['החדר הושלם! החדר הבא נפתח.','Room complete! The next room is unlocked.'],
+ finish:['כל עשרת החדרים הושלמו!','All ten rooms completed!'],
+ already:['החדר הזה כבר הושלם.','You already completed this room.'],
+ saved:['ההתקדמות נשמרת בדפדפן הזה.','Progress is saved in this browser.'],
+ unsaved:['אחסון הדפדפן אינו זמין. ההתקדמות זמינה עד לסגירת הדף.','Browser storage is unavailable. Progress lasts until you leave this page.']
 };
-let room = null;
-let roomMode = '600';
-let completed = new Set();
+const byId = id => document.getElementById(id);
+const t = pair => pair[language];
+const pad = n => String(n).padStart(2,'0');
+let language = 0;
+let completed = 0;
+let active = 0;
+let storageWorks = true;
 try {
-  const saved = JSON.parse(localStorage.getItem('kernelios-rooms') || '[]');
-  if (Array.isArray(saved)) completed = new Set(saved.filter((key) => Object.hasOwn(rooms, key)));
-} catch {}
-function showCompleted() {
-  Object.keys(rooms).forEach((key) => { byId(key + '-done').hidden = !completed.has(key); });
-}
-showCompleted();
+ const saved = JSON.parse(localStorage.getItem(key) || '{}') || {};
+ language = saved.language === 1 ? 1 : 0;
+ completed = Number.isInteger(saved.completed) ? Math.min(rooms.length,Math.max(0,saved.completed)) : 0;
+ active = Number.isInteger(saved.active) ? Math.min(completed,rooms.length-1,Math.max(0,saved.active)) : 0;
+} catch { storageWorks = false; }
 
-function showFeedback(node, message, error = false) {
-  node.textContent = message;
-  node.classList.toggle('error', error);
+const approved = {
+ 'api.conf':'732322f37243042be9e5af21441ccfeed748f1cc2dacce6a9cc8cf31b4207083',
+ 'worker.conf':'b48a4c39f24be91498461cceb9fb4a2d6614db435e1ad12c0891dbaa753fbfa2',
+ 'health.conf':'790cf4f766920188ae79c9ad86556129ad60c87372c2468dba423ebe13fff6f7'
+};
+const fixtureHashes = {
+ 'port=8080\n':approved['api.conf'],
+ 'workers=12\n':'719565c92ac7da53065029754d8ff8ca637066358f206b3ac7bbb92dc99d57b1',
+ 'interval=30\n':approved['health.conf']
+};
+const journals = {
+ 'backup.service': '08:00 INFO backup scheduled\n08:04 ERROR reason=quota_exceeded\n08:04 INFO unit exited with status 1',
+ 'api.service': '09:00 INFO listening\n09:01 WARN request latency elevated',
+ 'collector.service': '09:02 INFO batch received\n09:04 ERROR reason=schema_mismatch\n09:05 INFO awaiting compatible batch'
+};
+const processes = [
+ {user:'root',pid:1,cpu:0,mem:'0.1',name:'/sbin/init'},
+ {user:'root',pid:671,cpu:0.2,mem:'0.3',name:'/usr/sbin/cron'},
+ {user:'student',pid:1760,cpu:1.4,mem:'0.6',name:'sync-agent'},
+ {user:'student',pid:1842,cpu:37.8,mem:'6.2',name:'index-worker'},
+ {user:'student',pid:1921,cpu:3.1,mem:'1.2',name:'report-render'}
+];
+const network = [
+ 'State  Recv-Q  Send-Q  Local Address:Port  Peer Address:Port  Process',
+ 'LISTEN 0       128     127.0.0.1:9093     0.0.0.0:*          users:(("healthd",pid=893,fd=4))',
+ 'LISTEN 0       128     127.0.0.1:5432     0.0.0.0:*          users:(("postgres",pid=614,fd=5))',
+ 'LISTEN 0       256     0.0.0.0:8080       0.0.0.0:*          users:(("api",pid=821,fd=6))'
+].join('\n');
+
+function startSession(room,index) {
+ const dirs = new Set(['/','/home',home]);
+ const files = new Map();
+ const fixtures = {...room.files};
+ if (index===8) fixtures['evidence/SHA256SUMS'] = Object.entries(approved).map(([name,hash])=>hash+'  '+name).join('\n');
+ for (const [name,entry] of Object.entries(fixtures)) {
+  const path = home+'/'+name;
+  for (let parent=dirname(path); !dirs.has(parent); parent=dirname(parent)) dirs.add(parent);
+  const [content,mode] = Array.isArray(entry) ? entry : [entry,'644'];
+  files.set(path,{content,mode});
+ }
+ return {cwd:home,files,dirs,hints:0,hintVisible:false,lines:[],history:[],historyPos:0,draft:''};
 }
-function startRoom(key) {
-  room = key;
-  roomMode = '600';
-  byId('room-title').textContent = rooms[key].title;
-  byId('room-description').textContent = rooms[key].description;
-  byId('room-terminal-title').textContent = 'student@' + key;
-  byId('terminal-output').textContent = 'Type help for available commands.';
-  byId('command').value = '';
-  byId('flag').value = '';
-  showFeedback(byId('room-feedback'), '');
-  byId('room-panel').hidden = false;
-  byId('room-title').focus();
+
+const sessions = rooms.map(startSession);
+const room = () => rooms[active];
+const session = () => sessions[active];
+
+function dirname(path) { return path.slice(0,path.lastIndexOf('/')) || '/'; }
+function basename(path) { return path.slice(path.lastIndexOf('/')+1); }
+function resolvePath(path,state) {
+ if (path==='~' || path.startsWith('~/')) path=home+path.slice(1);
+ if (!path.startsWith('/')) path=state.cwd+'/'+path;
+ const parts=[];
+ for(const part of path.split('/')) {
+  if (part==='..') parts.pop();
+  else if (part && part!=='.') parts.push(part);
+ }
+ return '/'+parts.join('/');
 }
-function roomCommand(command) {
-  const options = rooms[room].commands;
-  if (command === 'help') {
-    const guides = {
-      archive: 'pwd · ls · cat README.txt · tar -tzf ARCHIVE · tar -xOzf ARCHIVE MEMBER',
-      logs: 'pwd · ls · cat FILE · grep PATTERN FILE · wc -l FILE',
-      permissions: 'pwd · ls · ls -l · id · chmod MODE report.txt · cat report.txt'
-    };
-    return 'help · clear\n' + guides[room];
+function prompt() {
+ return 'student@room-'+pad(active+1)+':'+session().cwd.replace(/^\/home\/student(?=\/|$)/,'~')+'$';
+}
+
+function append(text,tone='output',localized=false) {
+ const entry={text,tone,localized};
+ session().lines.push(entry);
+ if (session().lines.length>180) {
+  session().lines.shift();
+  byId('transcript').firstElementChild?.remove();
+ }
+ drawLine(entry);
+ byId('transcript').scrollTop=byId('transcript').scrollHeight;
+}
+function drawLine({text,tone,localized}) {
+ const el=document.createElement('p');
+ el.className='line';
+ el.dataset.tone=tone;
+ el.dir=localized && language===0 ? 'rtl':'ltr';
+ el.textContent=localized ? t(text) : text;
+ byId('transcript').append(el);
+}
+function persist() {
+ try {localStorage.setItem(key,JSON.stringify({completed,active,language}));storageWorks=true;}
+ catch {storageWorks=false;}
+ label('storage-status',storageWorks?copy.saved:copy.unsaved);
+}
+function label(id,value) {byId(id).textContent=t(value);}
+function rich(el,pair) {
+ el.replaceChildren(...t(pair).split('`').map((part,i)=>{
+  if (i%2===0) return document.createTextNode(part);
+  const code=document.createElement('code');
+  code.textContent=part;
+  return code;
+ }));
+}
+function renderProgress() {
+ byId('progress').value=completed;
+ byId('score').textContent=completed+' / '+rooms.length;
+ const list=byId('map');
+ list.replaceChildren(...rooms.map((r,i)=>{
+  const item=document.createElement('li');
+  const button=document.createElement('button');
+  button.type='button';
+  button.className='room'+(i<completed?' done':'');
+  button.disabled=i>completed;
+  if(i===active) button.setAttribute('aria-current','true');
+  for(const [className,value] of [['room-num',pad(i+1)],['room-name',t(r.title)],['room-state',i<completed?'✓':i>completed?t(copy.locked):i===active?t(copy.current):'']]){
+   const span=document.createElement('span');
+   span.className=className;
+   span.textContent=value;
+   if (className==='room-state' && i<completed) span.setAttribute('aria-label',t(copy.done));
+   button.append(span);
   }
-  if (room === 'permissions') {
-    if (command === 'ls -l' || command === 'ls -l report.txt') {
-      const permissions = Array.from(roomMode, (digit) => [4, 2, 1].map((bit, i) => Number(digit) & bit ? 'rwx'[i] : '-').join('')).join('');
-      return '-' + permissions + ' 1 student analysts 34 Nov 23 09:14 report.txt';
-    }
-    if (/^chmod [0-7]{3} report\.txt$/.test(command)) {
-      roomMode = command.split(' ')[1];
-      return '';
-    }
-    if (command === 'cat report.txt') {
-      if (!(Number(roomMode[0]) & 4)) return 'cat: report.txt: Permission denied';
-      return roomMode === '640'
-        ? 'Backup review: complete.\nLab verification: ' + rooms.permissions.flag
-        : 'Backup review: complete.\nLab verification: the requested permissions are still pending.';
-    }
-  }
-  return Object.hasOwn(options, command) ? options[command] : 'Command unavailable in this room. Type help.';
+  button.addEventListener('click',()=>openRoom(i));
+  item.append(button);
+  return item;
+ }));
+ byId('next').hidden=active>=completed || active===rooms.length-1;
 }
-document.querySelectorAll('[data-room]').forEach((button) => button.addEventListener('click', () => startRoom(button.dataset.room)));
-byId('room-reset').addEventListener('click', () => startRoom(room));
-byId('command-form').addEventListener('submit', (event) => {
-  event.preventDefault();
-  const input = byId('command');
-  const command = input.value.trim().replace(/\s+/g, ' ');
-  if (!command) return;
-  const output = byId('terminal-output');
-  if (command === 'clear') {
-    output.textContent = '';
+function renderHint() {
+ const state=session();
+ byId('hint').hidden=!state.hintVisible;
+ byId('hint-button').setAttribute('aria-expanded',String(state.hintVisible));
+ label('hint-button',!state.hintVisible?copy.hint:state.hints<room().hints.length?copy.hintNext:copy.hintHide);
+ if (state.hintVisible) rich(byId('hint'),room().hints[state.hints-1]);
+}
+function render() {
+ document.documentElement.lang=language?'en':'he';
+ document.documentElement.dir=language?'ltr':'rtl';
+ byId('language').textContent=language?'עברית':'English';
+ byId('language').setAttribute('aria-label',language?'Switch to Hebrew':'מעבר לאנגלית');
+ for(const [id,value] of Object.entries({
+  'page-title':copy.title,tagline:copy.tagline,'progress-label':copy.progress,'map-title':copy.rooms,
+  'guide-open':copy.guide,'guide-title':copy.guide,'guide-text':copy.guideText,'guide-close':copy.close,
+  offline:copy.offline,'terminal-title':copy.terminal,clear:copy.clear,run:copy.run,next:copy.next
+ })) label(id,value);
+ byId('guide-list').replaceChildren(...copy.guideItems.map(pair=>{
+  const li=document.createElement('li');
+  rich(li,pair);
+  return li;
+ }));
+ const input=byId('command');
+ input.setAttribute('aria-label',t(copy.command));
+ input.placeholder='help';
+ byId('room-title').textContent=pad(active+1)+' · '+t(room().title);
+ byId('level').dataset.level=room().level;
+ label('level',copy.levels[room().level]);
+ rich(byId('brief'),room().brief);
+ rich(byId('objective'),room().task);
+ byId('prompt').textContent=prompt();
+ renderProgress();
+ renderHint();
+ const log=byId('transcript');
+ log.replaceChildren();
+ if(session().lines.length===0) append(copy.ready,'info',true);
+ else session().lines.forEach(drawLine);
+ log.scrollTop=log.scrollHeight;
+ persist();
+}
+function openRoom(index) {
+ if (index>completed || index<0 || index>=rooms.length) return;
+ active=index;
+ byId('command').value='';
+ render();
+ byId('room-title').focus();
+}
+function showHint(fromCommand=false) {
+ const state=session();
+ if (!fromCommand && state.hintVisible && state.hints===room().hints.length) {
+  state.hintVisible=false;
+ } else {
+  if (state.hintVisible || state.hints===0) state.hints=Math.min(room().hints.length,state.hints+1);
+  state.hintVisible=true;
+  if (fromCommand) append(room().hints[state.hints-1].map(s=>s.replaceAll('`','')),'hint',true);
+ }
+ renderHint();
+}
+function submit(args) {
+ if (args.length!==room().answer.length || !args.every((arg,i)=>arg.toLowerCase()===room().answer[i])) {
+  append(copy.invalid,'error',true);
+ } else if(active<completed) {
+  append(copy.already,'info',true);
+ } else if(room().check && !room().check(session())) {
+  append(copy.pending,'error',true);
+ } else {
+  completed++;
+  renderProgress();
+  persist();
+  append(completed===rooms.length?copy.finish:copy.success,'success',true);
+ }
+}
+
+const commonHelp = 'pwd · ls [-al] [PATH] · cd [DIR] · cat FILE · whoami\nclear · hint · submit ANSWER · help';
+const roomHelp = [
+ '', '', 'grep [-inv] TEXT [FILE]', 'sort [-nr] [FILE] · uniq [-c] [FILE]',
+ 'chmod MODE FILE', 'ps aux [--sort=-%cpu]', 'systemctl status UNIT · journalctl -u UNIT',
+ 'ip addr · ss -lntp · grep TEXT [FILE]', 'sha256sum FILE · sha256sum -c MANIFEST',
+ 'grep [-in] TEXT [FILE] · journalctl -u UNIT'
+];
+function tokenize(line) {
+ const stages=[[]];
+ let word='', quote='', started=false;
+ const flush=()=>{
+  if(started) stages.at(-1).push(word);
+  word='';
+  started=false;
+ };
+ for(let i=0;i<line.length;i++) {
+  const ch=line[i];
+  if(ch==='\\' && quote!=="'") {
+   if(++i===line.length) throw Error('syntax error: trailing escape');
+   word+=line[i]; started=true;
+  } else if(quote) {
+   if(ch===quote) quote='';
+   else word+=ch;
+  } else if(ch==="'" || ch==='"') {
+   quote=ch; started=true;
+  } else if(ch==='|') {
+   flush(); stages.push([]);
+  } else if(/\s/.test(ch)) flush();
+  else {word+=ch; started=true;}
+ }
+ if(quote) throw Error('syntax error: unclosed quote');
+ flush();
+ if(stages.some(stage=>!stage.length)) throw Error('syntax error: empty pipeline stage');
+ return stages;
+}
+function options(args,allowed,command) {
+ const flags=new Set(), operands=[];
+ let parseFlags=true;
+ for(const arg of args) {
+  if(parseFlags && arg==='--') {parseFlags=false;continue;}
+  if(!parseFlags || arg.length<2 || !arg.startsWith('-')) {operands.push(arg);continue;}
+  for(const char of arg.slice(1)) {
+   if(!allowed.includes(char)) throw Error(command+': unsupported option -'+char);
+   flags.add(char);
+  }
+ }
+ return {flags,operands};
+}
+function displayMode(mode) {
+ return [...mode].map(d=>[4,2,1].map((bit,i)=>(Number(d)&bit)?'rwx'[i]:'-').join('')).join('');
+}
+function listFiles(args,state) {
+ const {flags,operands}=options(args,'al','ls');
+ if(operands.length>1) throw Error('usage: ls [-al] [PATH]');
+ const target=resolvePath(operands[0]??'.',state);
+ const display=(name,path)=>{
+  const file=state.files.get(path);
+  if(!flags.has('l')) return name;
+  const mode=displayMode(file?.mode??'755');
+  const size=file ? new TextEncoder().encode(file.content+'\n').length : 4096;
+  return (file?'-':'d')+mode+'  '+(file?'1':'2')+' student student '+String(size).padStart(4)+'  '+name;
+ };
+ if(state.files.has(target)) return display(operands[0],target)+'\n';
+ if(!state.dirs.has(target)) throw Error('ls: '+(operands[0]??'.')+': No such file or directory');
+ const paths=[...state.dirs,...state.files.keys()].filter(path=>path!=='/' && dirname(path)===target).sort();
+ const lines=paths.filter(path=>flags.has('a')||!basename(path).startsWith('.')).map(path=>display(basename(path),path));
+ if(flags.has('a')) lines.unshift(display('.',target),display('..',dirname(target)));
+ return lines.length ? lines.join(flags.has('l')?'\n':'  ')+'\n' : '';
+}
+function readFile(name,state) {
+ const target=resolvePath(name,state);
+ const file=state.files.get(target);
+ if(!file) throw Error(name+': '+(state.dirs.has(target)?'Is a directory':'No such file or directory'));
+ if(!(Number(file.mode[0])&4)) throw Error(name+': Permission denied');
+ return file.content+'\n';
+}
+const splitLines = value => value===''?[]:value.replace(/\n$/,'').split('\n');
+const outputLines = lines => lines.length?lines.join('\n')+'\n':'';
+function readInput(operands,input,command,state) {
+ if(operands.length>1 || (!operands.length && input===null)) throw Error('usage: '+command+' [FILE] (or pipe input)');
+ return operands.length ? readFile(operands[0],state) : input;
+}
+function checksum(name,state) {
+ const data=readFile(name,state);
+ const hash=Object.hasOwn(fixtureHashes,data)?fixtureHashes[data]:null;
+ if(!hash) throw Error('sha256sum: '+name+': no checksum fixture in this room');
+ return hash;
+}
+function shell(args,state,input) {
+ const [cmd,...rest]=args;
+ switch(cmd) {
+  case 'pwd': return state.cwd+'\n';
+  case 'whoami': return 'student\n';
+  case 'ls': return listFiles(rest,state);
+  case 'cd': {
+   if(rest.length>1) throw Error('usage: cd [DIR]');
+   const path=resolvePath(rest[0]??home,state);
+   if(!state.dirs.has(path)) throw Error('cd: '+rest[0]+': directory not found');
+   state.cwd=path;
+   return '';
+  }
+  case 'cat': {
+   if(!rest.length) throw Error('usage: cat FILE');
+   return rest.map(name=>readFile(name,state)).join('');
+  }
+  case 'grep': {
+   const {flags,operands}=options(rest,'Finv','grep');
+   if(!operands.length) throw Error('usage: grep [-inv] TEXT [FILE]');
+   const [pattern,...files]=operands;
+   const needle=flags.has('i')?pattern.toLowerCase():pattern;
+   const lines=splitLines(readInput(files,input,'grep TEXT',state));
+   const result=[];
+   lines.forEach((line,i)=>{
+    const haystack=flags.has('i')?line.toLowerCase():line;
+    if(haystack.includes(needle)!==flags.has('v')) result.push((flags.has('n')?(i+1)+':':'')+line);
+   });
+   return outputLines(result);
+  }
+  case 'sort': {
+   const {flags,operands}=options(rest,'nr','sort');
+   const lines=splitLines(readInput(operands,input,'sort',state));
+   const compare=(a,b)=>a===b?0:a<b?-1:1;
+   lines.sort((a,b)=>{
+    const delta=flags.has('n')?(parseFloat(a)||0)-(parseFloat(b)||0):0;
+    return (flags.has('r')?-1:1)*(delta||compare(a,b));
+   });
+   return outputLines(lines);
+  }
+  case 'uniq': {
+   const {flags,operands}=options(rest,'c','uniq');
+   const lines=splitLines(readInput(operands,input,'uniq',state));
+   const groups=[];
+   for(const line of lines) {
+    if(groups.at(-1)?.line===line) groups.at(-1).count++;
+    else groups.push({line,count:1});
+   }
+   return outputLines(groups.map(({line,count})=>flags.has('c')?String(count).padStart(7)+' '+line:line));
+  }
+  case 'chmod': {
+   if(rest.length!==2 || !/^[0-7]{3}$/.test(rest[0])) throw Error('usage: chmod MODE FILE (three octal digits)');
+   const file=state.files.get(resolvePath(rest[1],state));
+   if(!file) throw Error('chmod: '+rest[1]+': file not found');
+   file.mode=rest[0];
+   return '';
+  }
+  case 'ps': {
+   if(active!==5) throw Error('ps: process table is available in room 06');
+   if(rest.length && !['aux','aux --sort=-%cpu'].includes(rest.join(' '))) throw Error('usage: ps aux [--sort=-%cpu]');
+   const rows=rest.length===2?[...processes].sort((a,b)=>b.cpu-a.cpu):processes;
+   return outputLines(['USER         PID  %CPU  %MEM  COMMAND',...rows.map(p=>p.user.padEnd(9)+String(p.pid).padStart(7)+p.cpu.toFixed(1).padStart(6)+p.mem.padStart(6)+'  '+p.name)]);
+  }
+  case 'systemctl':
+  case 'journalctl': {
+   const journal=cmd==='journalctl';
+   if(rest.length!==2 || rest[0]!== (journal?'-u':'status')) throw Error('usage: '+(journal?'journalctl -u UNIT':'systemctl status UNIT'));
+   const unit=rest[1].endsWith('.service')?rest[1]:rest[1]+'.service';
+   if(!((active===6 && unit==='backup.service')||(active===9 && Object.hasOwn(journals,unit)))) throw Error('Unit '+unit+' is not present in this room.');
+   if(journal) return journals[unit]+'\n';
+   const status=unit==='api.service'?'active (running)':'failed (Result: exit-code)';
+   return '● '+unit+'\n   Loaded: loaded\n   Active: '+status+'\n';
+  }
+  case 'ip':
+   if(active!==7) throw Error('ip: interface data is available in room 08');
+   if(!['addr','a','address'].includes(rest.join(' '))) throw Error('usage: ip addr');
+   return '1: lo: <LOOPBACK,UP>\n    inet 127.0.0.1/8 scope host lo\n2: eth0: <BROADCAST,UP>\n    inet 192.0.2.14/24 scope global eth0\n';
+  case 'ss':
+   if(active!==7) throw Error('ss: socket data is available in room 08');
+   if(rest.length && !/^-([lntp]+)$/.test(rest.join(''))) throw Error('usage: ss -lntp');
+   return (rest.join('').includes('p')?network:network.replace(/ +Process$| +users:.*$/gm,''))+'\n';
+  case 'sha256sum': {
+   if(rest.length===1) return checksum(rest[0],state)+'  '+rest[0]+'\n';
+   if(rest.length!==2 || rest[0]!=='-c') throw Error('usage: sha256sum [-c] FILE');
+   const entries=splitLines(readFile(rest[1],state)).map(line=>{
+    const match=line.match(/^([0-9a-f]{64})  (.+)$/);
+    if(!match) throw Error('sha256sum: improperly formatted checksum file');
+    const [,hash,name]=match;
+    try{return name+': '+(checksum(name,state)===hash?'OK':'FAILED');}
+    catch{return name+': FAILED open or read';}
+   });
+   return outputLines(entries);
+  }
+  default: throw Error(cmd+': command not found. Type help.');
+ }
+}
+function clearLog() {
+ session().lines=[];
+ byId('transcript').replaceChildren();
+}
+function run(raw) {
+ const state=session();
+ state.history.push(raw);
+ if(state.history.length>80) state.history.shift();
+ state.historyPos=state.history.length;
+ state.draft='';
+ append(prompt()+' '+raw,'cmd');
+ try {
+  const stages=tokenize(raw);
+  const [cmd,...args]=stages[0];
+  if(['help','clear','hint','submit'].includes(cmd)) {
+   if(stages.length!==1) throw Error(cmd+': use this command outside a pipeline');
+   if(cmd==='help') {
+    append(commonHelp+(roomHelp[active]?'\n'+roomHelp[active]:''),'info');
+   } else if(cmd==='clear') clearLog();
+   else if(cmd==='hint') showHint(true);
+   else submit(args);
   } else {
-    const response = roomCommand(command);
-    output.textContent = (output.textContent + '\n$ ' + command + (response ? '\n' + response : '')).trimStart().slice(-12000);
+   let result=null;
+   for(const stage of stages) {
+    if(stages.length>1 && ['cd','chmod'].includes(stage[0])) throw Error(stage[0]+': run this command outside a pipeline');
+    result=shell(stage,state,result);
+   }
+   if(result) append(result.replace(/\n$/,''));
   }
-  output.scrollTop = output.scrollHeight;
-  input.value = '';
-  input.focus();
-});
-byId('flag-form').addEventListener('submit', (event) => {
-  event.preventDefault();
-  const correct = byId('flag').value.trim() === rooms[room].flag && (room !== 'permissions' || roomMode === '640');
-  showFeedback(byId('room-feedback'), correct ? 'הדגל התקבל. החדר הושלם!' : 'הדגל שגוי או שתנאי המשימה עוד לא הושלמו.', !correct);
-  if (!correct) return;
-  completed.add(room);
-  try { localStorage.setItem('kernelios-rooms', JSON.stringify([...completed])); } catch {}
-  showCompleted();
-});
-
-function parseSimulator(source) {
-  const descriptors = [...source.matchAll(/^function\s+qst(\d+)\s*\(\)\s*\{/gm)];
-  const questions = descriptors.map((entry, index) => {
-    const id = Number(entry[1]);
-    const next = descriptors[index + 1]?.index ?? source.length;
-    const section = source.slice(entry.index, next);
-    const options = [...section.matchAll(/^\[\d+\]="(.*)"\s*$/gm)].map((line) => line[1]);
-    const correct = [...section.matchAll(/^r_a\d+="(.*)"\s*$/gm)].map((line) => line[1]).filter(Boolean);
-    const lines = section.split(/\r?\n/);
-    const start = lines.findIndex((line) => /QUESTION:?\s*\d+/.test(line) && line.startsWith('echo'));
-    if (start < 0) throw new Error('Question ' + id + ' has no heading.');
-    if (options.length) {
-      const colored = lines.slice(start + 1).filter((line) => line.startsWith('echo -e') && line.includes('\\e[0;36m'));
-      const promptLines = [];
-      for (const line of colored) {
-        if (/QUESTION:?\s*\d+/.test(line)) break;
-        promptLines.push(line.split('\\e[0;36m')[1].split('\\e[0m')[0]);
-      }
-      if (!promptLines.length || !correct.length || !correct.every((answer) => options.includes(answer))) {
-        throw new Error('Question ' + id + ' has an unsupported format.');
-      }
-      return {id, prompt: promptLines.join('\n'), options, correct};
-    }
-    const readIndex = lines.findIndex((line) => /^read\s+answ/.test(line));
-    const prompt = lines.slice(start + 1, readIndex).filter((line) => /^echo "/.test(line))
-      .map((line) => line.slice(6, -1)).join(' ');
-    let shortAnswer = section.match(/^if\s+.*?\s={1,2}\s"([^"]*)"/m)?.[1];
-    // The supplied Bash script checks for an empty reply in question 40,
-    // although its printed solution identifies a literal backslash.
-    if (id === 40 && shortAnswer === '' && prompt.includes('split a command')) shortAnswer = '\\';
-    if (!prompt || !shortAnswer) throw new Error('Question ' + id + ' has an unsupported format.');
-    return {id, prompt, options: [], correct: [shortAnswer]};
-  });
-  if (!questions.length || new Set(questions.map(({id}) => id)).size !== questions.length) {
-    throw new Error('Question bank is empty or has duplicate numbers.');
-  }
-  return questions.sort((a, b) => a.id - b.id);
+ } catch (error) { append(error.message,'error'); }
+ byId('prompt').textContent=prompt();
 }
 
-let bank = [];
-let session = null;
-let timer = null;
-function shuffle(entries) {
-  const shuffled = [...entries];
-  for (let i = shuffled.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-}
-function renderTime() {
-  if (!session) return;
-  const elapsed = Math.floor((Date.now() - session.started) / 1000);
-  byId('quiz-clock').textContent = String(Math.floor(elapsed / 60)).padStart(2, '0') + ':' + String(elapsed % 60).padStart(2, '0');
-}
-function closeQuiz() {
-  clearInterval(timer);
-  session = null;
-  byId('quiz-panel').hidden = true;
-}
-byId('bank-file').addEventListener('change', async (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
-  closeQuiz();
-  bank = [];
-  byId('quiz-menu').hidden = true;
-  showFeedback(byId('bank-status'), 'טוען את הקובץ…');
-  try {
-    if (file.size > 1000000) throw new Error('File too large.');
-    const parsed = parseSimulator(await file.text());
-    if (event.target.files[0] !== file) return;
-    bank = parsed;
-    byId('question-number').max = Math.max(...bank.map(({id}) => id));
-    byId('exam-start').textContent = 'מבחן מדומה · ' + Math.min(40, bank.length) + ' שאלות';
-    byId('quiz-menu').hidden = false;
-    showFeedback(byId('bank-status'), 'נטענו ' + bank.length + ' שאלות.');
-  } catch (error) {
-    if (event.target.files[0] !== file) return;
-    showFeedback(byId('bank-status'), 'טעינת הקובץ נכשלה. ודאו שבחרתם את קובץ הסימולטור המקורי. ' + error.message, true);
-  }
+const input=byId('command');
+byId('prompt-form').addEventListener('submit',event=>{
+ event.preventDefault();
+ const value=input.value.trim();
+ input.value='';
+ if(value) run(value);
+ input.focus();
 });
-function renderQuestion() {
-  const question = session.questions[session.index];
-  byId('question-area').hidden = false;
-  byId('quiz-result').hidden = true;
-  byId('quiz-progress').textContent = 'שאלה ' + (session.index + 1) + ' מתוך ' + session.questions.length + ' · מס׳ ' + question.id + ' במאגר';
-  byId('question-text').textContent = question.prompt;
-  byId('selection-note').textContent = !question.options.length ? 'הקלידו את התשובה' : question.correct.length > 1 ? 'בחרו ' + question.correct.length + ' תשובות' : 'בחרו תשובה אחת';
-  const choices = byId('quiz-options');
-  choices.replaceChildren();
-  if (question.options.length) {
-    shuffle(question.options).forEach((option) => {
-      const label = document.createElement('label');
-      label.className = 'option';
-      label.dir = 'ltr';
-      const input = document.createElement('input');
-      input.name = 'choice';
-      input.type = question.correct.length > 1 ? 'checkbox' : 'radio';
-      input.value = option;
-      const text = document.createElement('span');
-      text.textContent = option;
-      label.append(input, text);
-      choices.append(label);
-    });
-  } else {
-    const input = document.createElement('input');
-    input.setAttribute('aria-label', 'תשובה');
-    input.name = 'short-answer';
-    input.type = 'text';
-    input.dir = 'ltr';
-    input.autocomplete = 'off';
-    input.spellcheck = false;
-    input.required = true;
-    choices.append(input);
-  }
-  byId('submit-answer').disabled = false;
-  byId('next-question').hidden = true;
-  showFeedback(byId('quiz-feedback'), '');
-  byId('quiz-progress').focus();
-}
-function showQuiz(mode, questions) {
-  closeQuiz();
-  session = {mode, questions, index: 0, started: Date.now(), answers: []};
-  byId('quiz-panel').hidden = false;
-  renderTime();
-  timer = setInterval(renderTime, 1000);
-  renderQuestion();
-}
-byId('study-start').addEventListener('click', () => showQuiz('study', bank));
-byId('exam-start').addEventListener('click', () => showQuiz('exam', shuffle(bank).slice(0, 40)));
-byId('lookup-form').addEventListener('submit', (event) => {
-  event.preventDefault();
-  const question = bank.find(({id}) => id === Number(byId('question-number').value));
-  if (question) showQuiz('study', [question]);
-  else showFeedback(byId('bank-status'), 'מספר השאלה אינו במאגר הטעון.', true);
+input.addEventListener('keydown',event=>{
+ const state=session();
+ if(!['ArrowUp','ArrowDown'].includes(event.key)||!state.history.length) return;
+ event.preventDefault();
+ if(state.historyPos===state.history.length) state.draft=input.value;
+ state.historyPos=Math.max(0,Math.min(state.history.length,state.historyPos+(event.key==='ArrowUp'?-1:1)));
+ input.value=state.history[state.historyPos]??state.draft;
+ input.setSelectionRange(input.value.length,input.value.length);
 });
-byId('quiz-exit').addEventListener('click', () => {
-  closeQuiz();
-  byId('exam-start').focus();
+byId('guide-close').type='button';
+byId('guide-close').addEventListener('click',()=>byId('guide').close());
+byId('guide-open').addEventListener('click',()=>byId('guide').showModal());
+byId('hint-button').addEventListener('click',()=>showHint());
+byId('next').addEventListener('click',()=>openRoom(active+1));
+byId('clear').addEventListener('click',()=>{clearLog();input.focus();});
+byId('language').addEventListener('click',()=>{language=1-language;render();});
+
+const originalBody = document.body.outerHTML;
+const originalHead = document.head.outerHTML;
+byId('offline').addEventListener('click',()=>{
+ const html='<!doctype html>\n<html lang="he" dir="rtl">'+originalHead+originalBody+'</html>';
+ const url=URL.createObjectURL(new Blob([html],{type:'text/html;charset=utf-8'}));
+ const link=document.createElement('a');
+ link.href=url;
+ link.download='linux-rooms.html';
+ link.click();
+ setTimeout(()=>URL.revokeObjectURL(url),30000);
 });
-byId('quiz-form').addEventListener('submit', (event) => {
-  event.preventDefault();
-  if (!session || byId('submit-answer').disabled) return;
-  const question = session.questions[session.index];
-  const data = new FormData(event.target);
-  const picked = question.options.length ? data.getAll('choice') : [data.get('short-answer').trim()];
-  if (picked.length !== question.correct.length || picked.some((value) => !value)) {
-    showFeedback(byId('quiz-feedback'), 'הזינו תשובה או בחרו את מספר התשובות המבוקש.', true);
-    return;
-  }
-  const correct = question.correct.every((answer) => picked.includes(answer));
-  session.answers.push({question, correct, picked});
-  if (session.mode === 'exam') {
-    nextQuestion();
-    return;
-  }
-  byId('quiz-options').querySelectorAll('input').forEach((input) => { input.disabled = true; });
-  byId('submit-answer').disabled = true;
-  const next = byId('next-question');
-  next.hidden = false;
-  next.textContent = session.index + 1 === session.questions.length ? 'לתוצאות' : 'לשאלה הבאה';
-  showFeedback(byId('quiz-feedback'), correct ? 'נכון!' : 'התשובה הנכונה: ' + question.correct.join(' · '), !correct);
-  next.focus();
-});
-function nextQuestion() {
-  session.index += 1;
-  if (session.index < session.questions.length) {
-    renderQuestion();
-    return;
-  }
-  clearInterval(timer);
-  renderTime();
-  byId('question-area').hidden = true;
-  const result = byId('quiz-result');
-  result.replaceChildren();
-  result.hidden = false;
-  const score = session.answers.filter(({correct}) => correct).length;
-  byId('quiz-progress').textContent = 'סיכום הסבב';
-  byId('quiz-progress').focus();
-  const summary = document.createElement('h3');
-  summary.textContent = 'תשובות נכונות: ' + score + ' מתוך ' + session.questions.length;
-  result.append(summary);
-  const missed = session.answers.filter(({correct}) => !correct);
-  if (missed.length) {
-    const review = document.createElement('details');
-    review.className = 'topic';
-    const heading = document.createElement('summary');
-    heading.textContent = 'סקירת טעויות';
-    const list = document.createElement('ol');
-    list.dir = 'ltr';
-    missed.forEach(({question, picked}) => {
-      const item = document.createElement('li');
-      item.textContent = '#' + question.id + ': ' + question.prompt + ' | Your answer: ' + picked.join(', ') + ' | Correct: ' + question.correct.join(', ');
-      list.append(item);
-    });
-    review.append(heading, list);
-    result.append(review);
-  }
-}
-byId('next-question').addEventListener('click', nextQuestion);
-</script>
-</body>
-</html>
+render();
+</script></body></html>
